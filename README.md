@@ -9,3 +9,5 @@ https://github.com/thomasWeise/distributedComputingExamples
 
 
 https://zeromq.org/
+
+https://book.mixu.net/distsys/single-page.html

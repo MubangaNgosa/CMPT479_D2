@@ -1,43 +1,39 @@
 #include <zmq.hpp>
-#include <iostream>
 #include <string>
-#include <cassert>
+#include <iostream>
+#include <thread>
+#include <chrono>
 
 int main() {
     zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_PUSH); // PUSH socket to send tasks
-    socket.bind("tcp://*:5555"); // Bind to port 5555
+    zmq::socket_t socket(context, ZMQ_ROUTER); // Router socket to communicate with multiple clients
+    socket.bind("tcp://*:5555");
 
-    uint64_t num_tasks = ...; // Total number of tasks to distribute
-
-    // Keep track of which task each worker is on
-    std::vector<uint64_t> worker_task_index(num_worker_nodes, 0);
-
-    // Listen for requests from workers
-    zmq::socket_t receiver(context, ZMQ_PULL); // PULL socket to receive requests
-    receiver.bind("tcp://*:5556"); // Bind to a different port for worker requests
+    int jobNumber = 1;
 
     while (true) {
         zmq::message_t request;
-        receiver.recv(request, zmq::recv_flags::none);
 
-        // Parse the worker ID from the request
-        std::string worker_id(request.to_string());
-        uint64_t worker_index = std::stoull(worker_id);
+        // Wait for next request from client
+        zmq::message_t identity;
+        socket.recv(identity);
+        socket.recv(request);
 
-        // Check if there are still tasks to send
-        if (worker_task_index[worker_index] < num_tasks) {
-            // Prepare and send the next task
-            zmq::message_t task(20);
-            snprintf((char *)task.data(), 20, "%llu", worker_task_index[worker_index]++);
+        std::string request_str(static_cast<char*>(request.data()), request.size());
 
-            socket.send(task, zmq::send_flags::none);
-        } else {
-            // No more tasks, send a termination message
-            zmq::message_t done("Done", 4);
-            socket.send(done, zmq::send_flags::none);
+        if (request_str == "request job") {
+            std::cout << "Received job request" << std::endl;
+
+            // Send job number as string
+            std::string jobString = std::to_string(jobNumber++);
+            zmq::message_t reply(jobString.size());
+            memcpy(reply.data(), jobString.c_str(), jobString.size());
+
+            socket.send(identity, zmq::send_flags::sndmore);
+            socket.send(reply);
+
+            std::cout << "Sent job " << jobString << std::endl;
         }
     }
-
     return 0;
 }

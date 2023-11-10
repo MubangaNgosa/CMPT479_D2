@@ -1,43 +1,33 @@
 #include <zmq.hpp>
 #include <iostream>
+#include <vector>
 #include <string>
-#include <cassert>
 
 int main() {
     zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_PUSH); // PUSH socket to send tasks
-    socket.bind("tcp://*:5555"); // Bind to port 5555
+    zmq::socket_t socket(context, ZMQ_ROUTER);
+    socket.bind("tcp://*:5555");
 
-    uint64_t num_tasks = ...; // Total number of tasks to distribute
-
-    // Keep track of which task each worker is on
+    uint64_t num_tasks = 100; // For example, total number of tasks to distribute
+    int num_worker_nodes = 5; // For example, number of worker nodes
     std::vector<uint64_t> worker_task_index(num_worker_nodes, 0);
 
-    // Listen for requests from workers
-    zmq::socket_t receiver(context, ZMQ_PULL); // PULL socket to receive requests
-    receiver.bind("tcp://*:5556"); // Bind to a different port for worker requests
-
     while (true) {
+        zmq::message_t identity;
         zmq::message_t request;
-        receiver.recv(request, zmq::recv_flags::none);
+        socket.recv(&identity);
+        socket.recv(&request);
 
-        // Parse the worker ID from the request
-        std::string worker_id(request.to_string());
-        uint64_t worker_index = std::stoull(worker_id);
+        std::string worker_id(static_cast<char*>(request.data()), request.size());
 
-        // Check if there are still tasks to send
-        if (worker_task_index[worker_index] < num_tasks) {
-            // Prepare and send the next task
-            zmq::message_t task(20);
-            snprintf((char *)task.data(), 20, "%llu", worker_task_index[worker_index]++);
+        // ... rest of your code ...
 
-            socket.send(task, zmq::send_flags::none);
-        } else {
-            // No more tasks, send a termination message
-            zmq::message_t done("Done", 4);
-            socket.send(done, zmq::send_flags::none);
-        }
+        // Use "%lu" or the correct format specifier for your variable type
+        snprintf((char *)task.data(), 20, "%lu", worker_task_index[worker_index]++);
+
+        // Send the task message
+        socket.send(identity, ZMQ_SNDMORE);
+        socket.send(task, 0);
     }
-
     return 0;
 }git 

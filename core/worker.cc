@@ -1,32 +1,31 @@
 #include <zmq.hpp>
-#include <string>
 #include <iostream>
+#include <string>
 #include <thread>
-#include <chrono>
 
 int main() {
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_DEALER); // Dealer socket for asynchronous request-reply
+    // Initialize the ZeroMQ context and socket
+    zmq::context_t context;
+    zmq::socket_t socket(context, zmq::socket_type::pull);
 
-    // Socket to talk to server
-    std::cout << "Connecting to hello world server…" << std::endl;
-    socket.connect("tcp://localhost:5555");
+    try {
+        // Connect to the server
+        socket.connect("tcp://127.0.0.53:5555");
+        std::cout << "Connected to server." << std::endl;
 
-    while (true) {
-        // Send a request for a job
-        zmq::message_t request(11);
-        memcpy(request.data(), "request job", 11);
-        socket.send(request);
-
-        // Get the reply.
-        zmq::message_t reply;
-        socket.recv(reply);
-        std::string reply_str(static_cast<char*>(reply.data()), reply.size());
-
-        std::cout << "Received job: " << reply_str << std::endl;
-
-        // Do some 'work'
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        // Enter a loop of receiving messages
+        while (true) {
+            zmq::message_t message;
+            socket.recv(message, zmq::recv_flags::none);
+            std::string msg_str(static_cast<char*>(message.data()), message.size());
+            std::cout << "Received job: " << msg_str << std::endl;
+        }
+    } catch (const zmq::error_t& e) {
+        std::cerr << "ZeroMQ error: " << e.what() << std::endl;
+        return 1;
+    } catch (const std::exception& e) {
+        std::cerr << "Standard exception: " << e.what() << std::endl;
+        return 1;
     }
 
     return 0;

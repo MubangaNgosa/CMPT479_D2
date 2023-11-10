@@ -1,33 +1,41 @@
 #include <zmq.hpp>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <thread>
+#include <chrono>
 
 int main() {
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_ROUTER);
-    socket.bind("tcp://*:5555");
+    // Initialize the ZeroMQ context and PUSH socket
+    zmq::context_t context;
+    zmq::socket_t socket(context, zmq::socket_type::push);
 
-    uint64_t num_tasks = 100; // For example, total number of tasks to distribute
-    int num_worker_nodes = 5; // For example, number of worker nodes
-    std::vector<uint64_t> worker_task_index(num_worker_nodes, 0);
+    try {
+        // Bind the socket to the address and port
+        socket.bind("tcp://127.0.0.53:5555");
+        std::cout << "Server is ready listening on port 7000" << std::endl;
+        std::cout << "Press ENTER to start sending the jobs!" << std::endl;
 
-    while (true) {
-        zmq::message_t identity;
-        zmq::message_t request;
-        socket.recv(&identity);
-        socket.recv(&request);
+        // Wait for the user to press ENTER
+        std::cin.get();
 
-        std::string worker_id(static_cast<char*>(request.data()), request.size());
+        std::cout << "About to send jobs!" << std::endl;
+        for (int i = 0; i < 100; ++i) {
+            // Create the job message
+            std::string job = "sending job " + std::to_string(i);
 
-        // ... rest of your code ...
+            // Send the job message
+            socket.send(zmq::buffer(job), zmq::send_flags::none);
 
-        // Use "%lu" or the correct format specifier for your variable type
-        snprintf((char *)task.data(), 20, "%lu", worker_task_index[worker_index]++);
-
-        // Send the task message
-        socket.send(identity, ZMQ_SNDMORE);
-        socket.send(task, 0);
+            // Wait for 500 milliseconds
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+    } catch (const zmq::error_t& e) {
+        std::cerr << "ZeroMQ error: " << e.what() << std::endl;
+        return 1;
+    } catch (const std::exception& e) {
+        std::cerr << "Standard exception: " << e.what() << std::endl;
+        return 1;
     }
+
     return 0;
-}git 
+}

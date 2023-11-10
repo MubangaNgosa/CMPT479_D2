@@ -78,6 +78,37 @@ namespace Peregrine
 #include "aggregators/Aggregator.hh"
 #include "Barrier.hh"
 
+// Start here 
+/*
+Insert data stuck for job packet
+*/
+// Job packet struct
+struct JobPacket {
+    uint64_t taskId;
+    uint32_t vgsCount;
+    uint32_t v;
+    uint32_t vgsi;
+
+    // Serialize the packet to a string for sending
+    std::string serialize() const {
+        std::ostringstream ss;
+        ss << taskId << "," << vgsCount << "," << v << "," << vgsi;
+        return ss.str();
+    }
+
+    // Deserialize the packet from a string
+    static JobPacket deserialize(const std::string& data) {
+        std::istringstream ss(data);
+        JobPacket packet;
+        char delimiter;
+        ss >> packet.taskId >> delimiter
+           >> packet.vgsCount >> delimiter
+           >> packet.v >> delimiter
+           >> packet.vgsi;
+        return packet;
+    }
+};
+
 namespace Peregrine
 {
   template <Graph::Labelling L,
@@ -94,8 +125,7 @@ namespace Peregrine
     uint64_t num_tasks = num_vertices * vgs_count;
 
     uint64_t task = 0;
-    while ((task = Context::task_ctr.fetch_add(1, std::memory_order_relaxed) + 1) <= num_tasks)
-    {
+    while ((task = Context::task_ctr.fetch_add(1, std::memory_order_relaxed) + 1) <= num_tasks){
       uint32_t v = (task-1) / vgs_count + 1;
       uint32_t vgsi = task % vgs_count;
       Matcher<has_anti_vertices, Stoppable, decltype(process)> m(stoken, dg->rbi, dg, vgsi, cands, process);

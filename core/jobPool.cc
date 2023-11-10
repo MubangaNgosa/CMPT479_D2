@@ -13,12 +13,14 @@ int main() {
         // Bind the socket to the address and port
         socket.bind("tcp://127.0.0.53:5555");
         std::cout << "Server is ready listening on port 7000" << std::endl;
-        std::cout << "Press ENTER to start sending the jobs!" << std::endl;
+        std::cout << "Waiting 15 seconds before sending jobs..." << std::endl;
 
-        // Wait for the user to press ENTER
-        std::cin.get();
+        // Wait for 15 seconds
+        std::this_thread::sleep_for(std::chrono::seconds(15));
 
         std::cout << "About to send jobs!" << std::endl;
+
+        // change this section to send jobs based on Peregrine.hh line 97 while loop.
         for (int i = 0; i < 100; ++i) {
             // Create the job message
             std::string job = "sending job " + std::to_string(i);
@@ -26,7 +28,7 @@ int main() {
             // Send the job message
             socket.send(zmq::buffer(job), zmq::send_flags::none);
 
-            // Wait for 500 milliseconds
+            // Wait for 500 milliseconds between each job
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
     } catch (const zmq::error_t& e) {

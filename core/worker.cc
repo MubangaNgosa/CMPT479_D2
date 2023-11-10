@@ -19,6 +19,11 @@ int main() {
             socket.recv(message, zmq::recv_flags::none);
             std::string msg_str(static_cast<char*>(message.data()), message.size());
             std::cout << "Received job: " << msg_str << std::endl;
+            /* take the job and proccess the peregrine command
+             * send back a message sayiny you are now ready for next dob when done proccessing job
+             * if idle for more that x units of time terminate
+             * if failed to proccess job tell jobPool.
+            */
         }
     } catch (const zmq::error_t& e) {
         std::cerr << "ZeroMQ error: " << e.what() << std::endl;

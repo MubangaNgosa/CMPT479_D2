@@ -2,8 +2,13 @@
 How to run the program so far.
 navigate to the "core" directory
 run
+
+
 g++ -o jobPool jobPool.cc -lzmq
+
+
 g++ -o worker worker.cc -lzmq
+
 
 then run
 

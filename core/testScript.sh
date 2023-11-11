@@ -1,20 +1,25 @@
 #!/bin/bash
-#SBATCH --job-name=zeromq_example
-#SBATCH --nodes=6
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=00:10:00
-#SBATCH --output=zeromq_example_%j.log
+#SBATCH --job-name=peregrine_job
+#SBATCH --output=peregrine_%j.out
+#SBATCH --error=peregrine_%j.err
+#SBATCH --ntasks=5  # 1 for jobPool and 4 for workers
+#SBATCH --time=10:00
+#SBATCH --cpus-per-task=2  # Total 10 CPUs, within the limit of 8
+#SBATCH --mem=5G  # Each task gets 5GB, adjust if needed
 
-# Load ZeroMQ module if available
-# module load zeromq
+# Run the jobPool program
+echo "Starting jobPool"
+./jobPool &
 
-# Determine the IP address of the first node (which we'll use as the master)
-MASTER_IP=$(srun --nodes=1 --ntasks=1 hostname -i)
+# Sleep for a short time to ensure jobPool is ready before starting workers
+sleep 10
 
-# Start the master node application
-if [[ "$SLURM_NODEID" -eq 0 ]]; then
-  ./master_node $MASTER_IP
-else
-  # Start the worker node applications on all other nodes
-  ./worker_node $MASTER_IP
-fi
+# Run the worker programs
+echo "Starting workers"
+for i in {1..4}; do
+   ./worker &
+done
+
+# Wait for all background processes to finish
+wait
+

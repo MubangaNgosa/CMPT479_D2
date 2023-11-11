@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
- if failed to proccess job tell jobPool.
+
+//if failed to proccess job tell jobPool.
 int main() {
     // Initialize the ZeroMQ context and socket
     zmq::context_t context;
@@ -10,7 +11,7 @@ int main() {
 
     try {
         // Connect to the server
-        socket.connect("tcp://127.0.0.53:5555");
+        socket.connect("tcp://142.58.13.2:5555");
         std::cout << "Connected to server." << std::endl;
 
         // Enter a loop of receiving messages

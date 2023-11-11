@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
-
+ if failed to proccess job tell jobPool.
 int main() {
     // Initialize the ZeroMQ context and socket
     zmq::context_t context;

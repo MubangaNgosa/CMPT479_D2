@@ -1,3 +1,16 @@
+
+How to run the program so far.
+navigate to the "core" directory
+run
+g++ -o jobPool jobPool.cc -lzmq
+g++ -o worker worker.cc -lzmq
+
+then run
+
+sbatch testScript.sh
+
+
+
 Useful links
 https://mpitutorial.com/tutorials/mpi-hello-world/
 

@@ -9,17 +9,17 @@
 
 # Run the jobPool program
 echo "Starting jobPool"
-./jobPool &
+./jobPool
 
-# Sleep for a short time to ensure jobPool is ready before starting workers
-sleep 10
+# Sleep for a short time to ensure jobPool is ready before starting worker#
+
+#sleep 10
 
 # Run the worker programs
-echo "Starting workers"
-for i in {1..4}; do
-   ./worker &
-done
+#echo "Starting workers"
+#for i in {1..4}; do
+#   ./worker &
+#done
 
 # Wait for all background processes to finish
-wait
-
+#wait

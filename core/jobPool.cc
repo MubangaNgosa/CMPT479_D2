@@ -26,8 +26,9 @@ int main() {
             std::string job = "sending job " + std::to_string(i);
 
             // Send the job message
-            socket.send(zmq::buffer(job), zmq::send_flags::none);
-
+            zmq::message_t message(job.data(), job.size());
+            socket.send(message);
+            
             // Wait for 500 milliseconds between each job
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }

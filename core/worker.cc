@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include "Peregrine.hh"
 
 //if failed to proccess job tell jobPool.
 int main() {
@@ -17,8 +18,8 @@ int main() {
         // Enter a loop of receiving messages
         while (true) {
             zmq::message_t message;
-            socket.recv(message, zmq::recv_flags::none);
-            std::string msg_str(static_cast<char*>(message.data()), message.size());
+            socket.recv(&message);
+            std::string received_msg(static_cast<char*>(message.data()), message.size());
             std::cout << "Received job: " << msg_str << std::endl;
             /* take the job and proccess the peregrine command
              * send back a message sayiny you are now ready for next dob when done proccessing job

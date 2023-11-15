@@ -11,7 +11,7 @@ int main() {
 
     try {
         // Bind the socket to the address and port
-        socket.bind("tcp://127.0.0.53:5555");
+        socket.bind("tcp://127.0.0.1:5555");
         std::cout << "Server is ready listening on port 5555" << std::endl;
         std::cout << "Waiting 15 seconds before sending jobs..." << std::endl;
 

@@ -12,7 +12,7 @@ int main() {
 
     try {
         // Connect to the server
-        socket.connect("tcp://142.58.13.2:5555");
+        socket.connect("tcp://127.0.0.53:5555");
         std::cout << "Connected to server." << std::endl;
 
         // Enter a loop of receiving messages

@@ -20,7 +20,9 @@ int main() {
             zmq::message_t message;
             socket.recv(&message);
             std::string received_msg(static_cast<char*>(message.data()), message.size());
-            std::cout << "Received job: " << msg_str << std::endl;
+            std::cout << "Received job: " << received_msg << std::endl;
+
+            //std::cout << "Received job: " << msg_str << std::endl;
             /* take the job and proccess the peregrine command
              * send back a message sayiny you are now ready for next dob when done proccessing job
              * if idle for more that x units of time terminate
